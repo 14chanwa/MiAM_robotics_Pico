@@ -1,22 +1,20 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 
-#include<string>
-#include<cmath>
+#include <string>
+#include <cmath>
 
 #include <stdio.h>
 #include "hardware/pwm.h"
 #include "NRF24.h"
 
-
 #include "hardware/clocks.h"
 // #include "Teleplot.h"
-
 
 const uint32_t wrap = 65465;
 
 uint32_t pwm_init(uint slice_num,
-       uint chan,double d)
+                  uint chan, double d)
 {
     uint32_t clock = 125000000;
     pwm_set_clkdiv_int_frac(slice_num, 38, 3);
@@ -27,11 +25,9 @@ uint32_t pwm_init(uint slice_num,
     return wrap;
 }
 
-
 double stop_value = 1500.0;
 double posturn_value = 1700.0;
 double negturn_value = 1300.0;
-
 
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
@@ -44,7 +40,7 @@ double abs_speed_y = 0.0;
 
 double compute_speed(int reading)
 {
-    return std::min(1.0 * abs(reading - 2048.0), 2048.0 - 246.0) / (2048.0-246.0);
+    return std::min(1.0 * abs(reading - 2048.0), 2048.0 - 246.0) / (2048.0 - 246.0);
 }
 
 bool run_x = false;
@@ -52,7 +48,8 @@ bool run_y = false;
 
 NRF24 nrf(spi0, 2, 3, 4, 5, 6);
 
-void core1_entry() {
+void core1_entry()
+{
 
     printf("Core1 entry\n");
 
@@ -63,9 +60,11 @@ void core1_entry() {
 
     int result_x, result_y;
 
-    while(1){
-        if (nrf.newMessage() == 1) {
-            nrf.receiveMessage(buffer);            
+    while (1)
+    {
+        if (nrf.newMessage() == 1)
+        {
+            nrf.receiveMessage(buffer);
             gpio_put(LED_PIN, ledstatus);
             ledstatus = !ledstatus;
 
@@ -87,7 +86,7 @@ void core1_entry() {
 
             int activation_offset = 300;
 
-            if (result_x > 2048+activation_offset)
+            if (result_x > 2048 + activation_offset)
             {
                 // forward
                 run_x = true;
@@ -95,7 +94,7 @@ void core1_entry() {
                 direction_x = true;
                 direction_y = true;
             }
-            else if (result_x < 2048-activation_offset)
+            else if (result_x < 2048 - activation_offset)
             {
                 // backward
                 run_x = true;
@@ -103,7 +102,7 @@ void core1_entry() {
                 direction_x = false;
                 direction_y = true;
             }
-            else if (result_y > 2048+activation_offset)
+            else if (result_y > 2048 + activation_offset)
             {
                 // rotate left
                 run_x = false;
@@ -111,7 +110,7 @@ void core1_entry() {
                 direction_x = true;
                 direction_y = true;
             }
-            else if (result_y < 2048-activation_offset)
+            else if (result_y < 2048 - activation_offset)
             {
                 // rotate right
                 run_x = false;
@@ -164,14 +163,12 @@ void core1_entry() {
             //         direction_y = false;
             //     }
             // }
-
         }
-        
+
         // printf("Heartbeat\n");
         sleep_us(10);
     }
 }
-
 
 const double period_start = 1000;
 const double period_target = 700;
@@ -189,8 +186,9 @@ bool current_run_y = run_y;
 
 volatile bool timer_fired = false;
 
-int64_t alarm_callback(alarm_id_t id, void *user_data) {
-    printf("Timer %d fired!\n", (int) id);
+int64_t alarm_callback(alarm_id_t id, void *user_data)
+{
+    printf("Timer %d fired!\n", (int)id);
     timer_fired = true;
     // Can return a value here in us to fire in the future
     return 0;
@@ -198,34 +196,32 @@ int64_t alarm_callback(alarm_id_t id, void *user_data) {
 
 class Servo
 {
-    public:
-        uint gpio_;
+public:
+    uint gpio_;
 
-        Servo(uint gpio);
+    Servo(uint gpio);
 
-        uint getSliceNum();
-        uint getChan();
+    uint getSliceNum();
+    uint getChan();
 
-        /// @brief Sends a target to the servo in us
-        /// @param target should be a target in us
-        void setTargetUs(uint32_t target);
-
+    /// @brief Sends a target to the servo in us
+    /// @param target should be a target in us
+    void setTargetUs(uint32_t target);
 };
 
-uint Servo::getSliceNum() { return(pwm_gpio_to_slice_num(gpio_)); }
-uint Servo::getChan() { return(pwm_gpio_to_channel(gpio_)); }
+uint Servo::getSliceNum() { return (pwm_gpio_to_slice_num(gpio_)); }
+uint Servo::getChan() { return (pwm_gpio_to_channel(gpio_)); }
 
-Servo::Servo(uint gpio) : gpio_(gpio) 
+Servo::Servo(uint gpio) : gpio_(gpio)
 {
     gpio_set_function(gpio_, GPIO_FUNC_PWM);
     pwm_set_phase_correct(getSliceNum(), false);
 
     // frequency = 50 Hz, period = 20ms
     // stop signal = 1500 us = 1500/20000 duty cycle
-    pwm_init(getSliceNum(), getChan(), stop_value/20000.);
+    pwm_init(getSliceNum(), getChan(), stop_value / 20000.);
     pwm_set_enabled(getSliceNum(), true);
 }
-
 
 void Servo::setTargetUs(uint32_t target)
 {
@@ -234,8 +230,8 @@ void Servo::setTargetUs(uint32_t target)
     pwm_set_chan_level(getSliceNum(), getChan(), level);
 };
 
-
-int main(){
+int main()
+{
 
     stdio_init_all();
 
@@ -259,64 +255,61 @@ int main(){
 
     // int count = 0;
 
-
-    while (1) {
+    while (1)
+    {
         // printf("iter\n");
 
-            // count++;
-            // if (count >= 100)
-            // {
-            //     gpio_put(LED_PIN, ledstatus);
-            //     ledstatus = !ledstatus;
-            //     count = 0;
+        // count++;
+        // if (count >= 100)
+        // {
+        //     gpio_put(LED_PIN, ledstatus);
+        //     ledstatus = !ledstatus;
+        //     count = 0;
 
-            // }
+        // }
 
+        // Update
+        current_direction_x = direction_x;
+        current_direction_y = direction_y;
+        current_run_x = run_x;
+        current_run_y = run_y;
 
-            // Update
-            current_direction_x = direction_x;
-            current_direction_y = direction_y;
-            current_run_x = run_x;
-            current_run_y = run_y;
+        /* Change direction */
 
-            /* Change direction */
-
-            if (run_x)
+        if (run_x)
+        {
+            if (direction_x)
             {
-                if (direction_x)
-                {
-                    rightMotor.setTargetUs((1 - abs_speed_x) * stop_value + posturn_value * abs_speed_x);
-                    leftMotor.setTargetUs((1 - abs_speed_x) * stop_value + negturn_value * abs_speed_x);
-                }
-                else
-                {
-                    rightMotor.setTargetUs((1 - abs_speed_x) * stop_value + negturn_value * abs_speed_x);
-                    leftMotor.setTargetUs((1 - abs_speed_x) * stop_value + posturn_value * abs_speed_x);
-                }   
-            }
-            else if (run_y)
-            {
-                if (direction_y)
-                {
-                    leftMotor.setTargetUs((1 - abs_speed_y) * stop_value + negturn_value * abs_speed_y);
-                    rightMotor.setTargetUs((1 - abs_speed_y) * stop_value + negturn_value * abs_speed_y);
-                }
-                else
-                {
-                    leftMotor.setTargetUs((1 - abs_speed_y) * stop_value + posturn_value * abs_speed_y);
-                    rightMotor.setTargetUs((1 - abs_speed_y) * stop_value + posturn_value * abs_speed_y);
-                }   
+                rightMotor.setTargetUs((1 - abs_speed_x) * stop_value + posturn_value * abs_speed_x);
+                leftMotor.setTargetUs((1 - abs_speed_x) * stop_value + negturn_value * abs_speed_x);
             }
             else
             {
-                leftMotor.setTargetUs(stop_value);
-                rightMotor.setTargetUs(stop_value);
+                rightMotor.setTargetUs((1 - abs_speed_x) * stop_value + negturn_value * abs_speed_x);
+                leftMotor.setTargetUs((1 - abs_speed_x) * stop_value + posturn_value * abs_speed_x);
             }
-
+        }
+        else if (run_y)
+        {
+            if (direction_y)
+            {
+                leftMotor.setTargetUs((1 - abs_speed_y) * stop_value + negturn_value * abs_speed_y);
+                rightMotor.setTargetUs((1 - abs_speed_y) * stop_value + negturn_value * abs_speed_y);
+            }
+            else
+            {
+                leftMotor.setTargetUs((1 - abs_speed_y) * stop_value + posturn_value * abs_speed_y);
+                rightMotor.setTargetUs((1 - abs_speed_y) * stop_value + posturn_value * abs_speed_y);
+            }
+        }
+        else
+        {
+            leftMotor.setTargetUs(stop_value);
+            rightMotor.setTargetUs(stop_value);
+        }
 
         sleep_us(period_current); // max 100Hz (1ms)
     }
 
     return 0;
 }
-

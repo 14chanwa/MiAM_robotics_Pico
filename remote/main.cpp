@@ -3,10 +3,11 @@
 #include "hardware/adc.h"
 #include "NRF24.h"
 
-#include<string>
+#include <string>
 #include <stdio.h>
 
-int main(){
+int main()
+{
 
     stdio_init_all();
 
@@ -20,14 +21,15 @@ int main(){
     nrf.modeTX();
 
     adc_init();
-    adc_gpio_init(26);    
+    adc_gpio_init(26);
     adc_gpio_init(27);
 
     char buffer[32];
 
     bool led_status = false;
 
-    while(1){
+    while (1)
+    {
 
         // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
         const float conversion_factor = 3.3f / (1 << 12);
@@ -45,9 +47,7 @@ int main(){
 
         gpio_put(LED_PIN, led_status);
         led_status = !led_status;
-
     }
 
     return 0;
 }
-

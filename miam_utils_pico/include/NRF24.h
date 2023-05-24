@@ -10,22 +10,23 @@ private: // Vars.
     spi_inst_t *port;
     uint16_t sck;
     uint16_t tx;
-    uint16_t rx;   
+    uint16_t rx;
     uint16_t csn;
     uint16_t ce;
 
 public: // Vars.
-    //TODO: Add public vars.
+        // TODO: Add public vars.
 private: // Funcs.
-    void csnLow(){ gpio_put(csn, 0);}
-    void csnHigh(){ gpio_put(csn, 1);}
-    void ceLow(){ gpio_put(ce, 0);}
-    void ceHigh(){ gpio_put(ce, 1);}
+    void csnLow() { gpio_put(csn, 0); }
+    void csnHigh() { gpio_put(csn, 1); }
+    void ceLow() { gpio_put(ce, 0); }
+    void ceHigh() { gpio_put(ce, 1); }
+
 public: /// Funcs.
     uint8_t readReg(uint8_t reg);
 
-    void writeReg( uint8_t reg, uint8_t data);
-    void writeReg( uint8_t reg, uint8_t *data, uint8_t size);
+    void writeReg(uint8_t reg, uint8_t data);
+    void writeReg(uint8_t reg, uint8_t *data, uint8_t size);
 
     void init();
     void config();
@@ -44,17 +45,13 @@ public: /// Funcs.
 
 public:
     NRF24(
-        spi_inst_t *port, 
+        spi_inst_t *port,
         uint16_t sck,
         uint16_t tx,
-        uint16_t rx,   
-        uint16_t csn, 
-        uint16_t ce
-    );
+        uint16_t rx,
+        uint16_t csn,
+        uint16_t ce);
     ~NRF24();
 };
-
-
-
 
 #endif
