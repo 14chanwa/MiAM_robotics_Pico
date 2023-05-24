@@ -1,0 +1,25 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "command": "cd build; cmake ../; make -j4",
+            "label": "CMake in build/",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "type": "shell",
+            "command": "cd build; cmake ../; make -j4;openocd -f interface/raspberrypi-swd.cfg -f target/rp2040.cfg -c 'program robot.elf verify reset exit'",
+            "label": "CMake & Flash",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
