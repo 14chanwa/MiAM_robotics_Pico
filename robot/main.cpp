@@ -2,32 +2,17 @@
 #include "pico/multicore.h"
 
 #include <string>
-#include <cmath>
 
 #include <stdio.h>
-#include "hardware/pwm.h"
 #include "NRF24.h"
+#include "Servo.h"
 
 #include "hardware/clocks.h"
 // #include "Teleplot.h"
 
-const uint32_t wrap = 65465;
-
-uint32_t pwm_init(uint slice_num,
-                  uint chan, double d)
-{
-    uint32_t clock = 125000000;
-    pwm_set_clkdiv_int_frac(slice_num, 38, 3);
-    pwm_set_wrap(slice_num, 65465);
-
-    uint32_t level = static_cast<uint32_t>(round(wrap * d));
-    pwm_set_chan_level(slice_num, chan, level);
-    return wrap;
-}
-
-double stop_value = 1500.0;
-double posturn_value = 1700.0;
-double negturn_value = 1300.0;
+int stop_value = 1500;
+int posturn_value = 1700;
+int negturn_value = 1300;
 
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
@@ -194,42 +179,6 @@ int64_t alarm_callback(alarm_id_t id, void *user_data)
     return 0;
 }
 
-class Servo
-{
-public:
-    uint gpio_;
-
-    Servo(uint gpio);
-
-    uint getSliceNum();
-    uint getChan();
-
-    /// @brief Sends a target to the servo in us
-    /// @param target should be a target in us
-    void setTargetUs(uint32_t target);
-};
-
-uint Servo::getSliceNum() { return (pwm_gpio_to_slice_num(gpio_)); }
-uint Servo::getChan() { return (pwm_gpio_to_channel(gpio_)); }
-
-Servo::Servo(uint gpio) : gpio_(gpio)
-{
-    gpio_set_function(gpio_, GPIO_FUNC_PWM);
-    pwm_set_phase_correct(getSliceNum(), false);
-
-    // frequency = 50 Hz, period = 20ms
-    // stop signal = 1500 us = 1500/20000 duty cycle
-    pwm_init(getSliceNum(), getChan(), stop_value / 20000.);
-    pwm_set_enabled(getSliceNum(), true);
-}
-
-void Servo::setTargetUs(uint32_t target)
-{
-    double d = target / 20000.;
-    uint32_t level = static_cast<uint32_t>(round(wrap * d));
-    pwm_set_chan_level(getSliceNum(), getChan(), level);
-};
-
 int main()
 {
 
@@ -245,8 +194,11 @@ int main()
 
     multicore_launch_core1(core1_entry);
 
-    Servo rightMotor(19);
-    Servo leftMotor(18);
+    Servo rightMotor(19, stop_value);
+    Servo leftMotor(18, stop_value);
+
+    rightMotor.init();
+    leftMotor.init();
 
     // bool ledstatus = false;
     // const uint LED_PIN = PICO_DEFAULT_LED_PIN;
@@ -304,8 +256,8 @@ int main()
         }
         else
         {
-            leftMotor.setTargetUs(stop_value);
-            rightMotor.setTargetUs(stop_value);
+            leftMotor.resetTarget();
+            rightMotor.resetTarget();
         }
 
         sleep_us(period_current); // max 100Hz (1ms)
