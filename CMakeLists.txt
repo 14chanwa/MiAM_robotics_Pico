@@ -72,3 +72,30 @@ hardware_spi
 hardware_adc
 miam_utils_pico
 )
+
+
+# robot_l298n
+
+add_executable(robot_l298n)
+
+target_sources(robot_l298n PRIVATE 
+robot_l298n/main.cpp)
+
+# target_include_directories(robot_l298n PUBLIC
+# miam_utils_pico/include
+# )
+
+target_link_libraries(robot_l298n
+pico_stdlib
+pico_multicore
+hardware_spi
+hardware_pwm
+# miam_utils_pico
+)
+
+# enable usb output, disable uart output
+pico_enable_stdio_usb(robot_l298n 0)
+pico_enable_stdio_uart(robot_l298n 1)
+
+# create map/bin/hex/uf2 file etc.
+pico_add_extra_outputs(robot_l298n)
