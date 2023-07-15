@@ -81,16 +81,16 @@ add_executable(robot_l298n)
 target_sources(robot_l298n PRIVATE 
 robot_l298n/main.cpp)
 
-# target_include_directories(robot_l298n PUBLIC
-# miam_utils_pico/include
-# )
+target_include_directories(robot_l298n PUBLIC
+miam_utils_pico/include
+)
 
 target_link_libraries(robot_l298n
 pico_stdlib
 pico_multicore
 hardware_spi
 hardware_pwm
-# miam_utils_pico
+miam_utils_pico
 )
 
 # enable usb output, disable uart output
