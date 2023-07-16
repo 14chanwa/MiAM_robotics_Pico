@@ -14,6 +14,22 @@ add_compile_options(-Wall
         )
 
 
+# pico-ssd1306
+add_library(pico_ssd1306
+        pico-ssd1306/ssd1306.cpp
+        pico-ssd1306/frameBuffer/FrameBuffer.cpp
+        pico-ssd1306/shapeRenderer/ShapeRenderer.cpp)
+
+add_subdirectory(pico-ssd1306/textRenderer)
+
+target_link_libraries(pico_ssd1306
+        ssd1306_textRenderer
+        hardware_i2c
+        pico_stdlib
+        )
+target_include_directories (pico_ssd1306 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/pico-ssd1306)
+
+
 # miam_utils_pico
 FILE( GLOB LIB_SOURCES miam_utils_pico/src/*.cpp )
 FILE( GLOB LIB_HEADERS miam_utils_pico/include/*.h )
@@ -83,6 +99,7 @@ robot_l298n/main.cpp)
 
 target_include_directories(robot_l298n PUBLIC
 miam_utils_pico/include
+pico-ssd1306
 )
 
 target_link_libraries(robot_l298n
@@ -90,7 +107,9 @@ pico_stdlib
 pico_multicore
 hardware_spi
 hardware_pwm
+hardware_i2c
 miam_utils_pico
+pico_ssd1306
 )
 
 # enable usb output, disable uart output

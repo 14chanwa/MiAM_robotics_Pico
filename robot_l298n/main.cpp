@@ -7,8 +7,10 @@
 #include <stdio.h>
 #include "hardware/clocks.h"
 #include "hardware/pwm.h"
+#include "hardware/i2c.h"
 
 #include "L298N.h"
+#include "ssd1306.h"
 
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 bool ledstatus = false;
@@ -17,8 +19,13 @@ const uint IN1_PIN = 19;
 const uint IN2_PIN = 21;
 const uint IN3_PIN = 20;
 const uint IN4_PIN = 18;
-const uint ENA_PIN = 5;
-const uint ENB_PIN = 4;
+const uint ENA_PIN = 7;
+const uint ENB_PIN = 6;
+
+i2c_inst_t *i2c = i2c0;
+const uint I2C0_SDA_PIN = 4;
+const uint I2C0_SCL_PIN = 5;
+const uint16_t SSD1306_I2C_ADDRESS = 0x3C;
 
 L298N motorDriver(
     IN1_PIN,
@@ -40,12 +47,35 @@ rotation current_rotation = rotation::OFF;
 int main()
 {
 
+    // Wait for ssd1306 to boot
+    sleep_us(100000);
+
     stdio_init_all();
 
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
 
     motorDriver.init();
+
+    //Initialize I2C port at 400 kHz
+    i2c_init(i2c, 1000000);
+
+    // Initialize I2C pins
+    gpio_set_function(I2C0_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(I2C0_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C0_SDA_PIN);
+    gpio_pull_up(I2C0_SCL_PIN);
+
+    //Create a new display object
+    pico_ssd1306::SSD1306 display = pico_ssd1306::SSD1306(
+        i2c, SSD1306_I2C_ADDRESS, pico_ssd1306::Size::W128xH64);
+
+    //create a vertical line on x: 64 y:0-63
+    for (int y = 0; y < 64; y++){
+        display.setPixel(64, y);
+    }
+    display.sendBuffer(); //Send buffer to device and show on screen
+
 
     double current_velocity = 0.0;
 
