@@ -61,12 +61,12 @@ void L298N::init()
     pwm_set_chan_level(pwm_gpio_to_slice_num(ENB_PIN_), pwm_gpio_to_channel(ENB_PIN_), 0);
 }
 
-void L298N::setSpeed(bool motorId, double speed)
+void L298N::setSpeed(L298NMotorId motorId, double speed)
 {
     printf("Set motor %b to speed %f\n", motorId, speed);
-    uint pin1 = motorId ? IN3_PIN_ : IN1_PIN_;
-    uint pin2 = motorId ? IN4_PIN_ : IN2_PIN_;
-    uint pinenable = motorId ? ENB_PIN_ : ENA_PIN_;
+    uint pin1 = motorId == L298NMotorId::left ? IN3_PIN_ : IN1_PIN_;
+    uint pin2 = motorId == L298NMotorId::left ? IN4_PIN_ : IN2_PIN_;
+    uint pinenable = motorId == L298NMotorId::left ? ENB_PIN_ : ENA_PIN_;
 
     if (std::abs(speed) < 1e-6)
     {

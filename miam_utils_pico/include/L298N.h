@@ -3,6 +3,12 @@
 
 #include "pico/stdlib.h"
 
+enum L298NMotorId
+{
+    left = 0,
+    right = 1
+};
+
 class L298N
 {
 public:
@@ -18,9 +24,9 @@ public:
     void init();
 
     /// @brief Sets the speed of the motors
-    /// @param motorId either false for first motor, or true for second motor
+    /// @param motorId either 0 for first motor, or 1 for second motor
     /// @param speed speed in %, between -1 and 1 (negative will reverse)
-    void setSpeed(bool motorId, double speed);
+    void setSpeed(L298NMotorId motorId, double speed);
     
 private: 
     uint IN1_PIN_;

@@ -65,20 +65,20 @@ int main()
 
         if (current_rotation == rotation::FORWARD)
         {
-            motorDriver.setSpeed(false, current_velocity);
-            motorDriver.setSpeed(true, current_velocity);
+            motorDriver.setSpeed(L298NMotorId::left, current_velocity);
+            motorDriver.setSpeed(L298NMotorId::right, current_velocity);
             current_rotation = rotation::BACKWARD;
         }
         else if (current_rotation == rotation::BACKWARD)
         {
-            motorDriver.setSpeed(false, -current_velocity);
-            motorDriver.setSpeed(true, -current_velocity);
+            motorDriver.setSpeed(L298NMotorId::left, -current_velocity);
+            motorDriver.setSpeed(L298NMotorId::right, -current_velocity);
             current_rotation = rotation::OFF;
         }
         else
         {
-            motorDriver.setSpeed(false, 0);
-            motorDriver.setSpeed(true, 0);
+            motorDriver.setSpeed(L298NMotorId::left, 0);
+            motorDriver.setSpeed(L298NMotorId::right, 0);
             current_rotation = rotation::FORWARD;
         }
 
