@@ -11,6 +11,7 @@
 
 #include "L298N.h"
 #include "ssd1306.h"
+#include "textRenderer/TextRenderer.h"
 
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 bool ledstatus = false;
@@ -69,15 +70,17 @@ int main()
     //Create a new display object
     pico_ssd1306::SSD1306 display = pico_ssd1306::SSD1306(
         i2c, SSD1306_I2C_ADDRESS, pico_ssd1306::Size::W128xH64);
+    display.setOrientation(false);
 
-    //create a vertical line on x: 64 y:0-63
-    for (int y = 0; y < 64; y++){
-        display.setPixel(64, y);
-    }
-    display.sendBuffer(); //Send buffer to device and show on screen
+    // //create a vertical line on x: 64 y:0-63
+    // for (int y = 0; y < 64; y++){
+    //     display.setPixel(64, y);
+    // }
+    // display.sendBuffer(); //Send buffer to device and show on screen
 
 
     double current_velocity = 0.0;
+    uint8_t anchor_y = 0;
 
     while (1)
     {
@@ -112,9 +115,18 @@ int main()
             current_rotation = rotation::FORWARD;
         }
 
+        display.clear();
         printf("current_velocity %f\n", current_velocity);
+        // printf("%f\n", std::to_string((uint)std::round(current_velocity*100)).c_str());
+        drawText(&display, font_12x16, std::to_string(current_velocity).c_str(), anchor_y ,anchor_y);
+        display.sendBuffer();
 
         current_velocity += 0.025;
+        anchor_y += 2;
+        if (anchor_y - 16 > 32)
+        {
+            anchor_y = 0;
+        }
         if (current_velocity > 1)
         {
             current_velocity = 0;
