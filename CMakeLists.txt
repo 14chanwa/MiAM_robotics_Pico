@@ -29,14 +29,22 @@ target_link_libraries(pico_ssd1306
         )
 target_include_directories (pico_ssd1306 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/pico-ssd1306)
 
-
 # miam_utils_pico
-FILE( GLOB LIB_SOURCES miam_utils_pico/src/*.cpp )
-FILE( GLOB LIB_HEADERS miam_utils_pico/include/*.h )
+FILE( GLOB LIB_SOURCES 
+    miam_utils_pico/src/*.cpp 
+    miam_utils_pico/src/trajectory/*.cpp
+    miam_utils_pico/src/drivers/*.cpp
+ )
+FILE( GLOB LIB_HEADERS 
+    miam_utils_pico/include/*.h 
+    miam_utils_pico/include/trajectory/*.h 
+    miam_utils_pico/include/drivers/*.h 
+)
 ADD_LIBRARY( miam_utils_pico ${LIB_SOURCES} ${LIB_HEADERS} )
 
 target_include_directories(miam_utils_pico PUBLIC
 miam_utils_pico/include
+/usr/include/eigen3
 )
 
 target_link_libraries(miam_utils_pico
@@ -55,6 +63,7 @@ target_sources(robot PRIVATE
 
 target_include_directories(robot PUBLIC
 miam_utils_pico/include
+miam_utils_pico/include/drivers
 )
 
 target_link_libraries(robot
@@ -80,6 +89,7 @@ remote/main.cpp
 )
 target_include_directories(remote PUBLIC
 miam_utils_pico/include
+miam_utils_pico/include/drivers
 )
 
 target_link_libraries(remote
@@ -99,6 +109,7 @@ robot_l298n/main.cpp)
 
 target_include_directories(robot_l298n PUBLIC
 miam_utils_pico/include
+miam_utils_pico/include/drivers
 pico-ssd1306
 )
 

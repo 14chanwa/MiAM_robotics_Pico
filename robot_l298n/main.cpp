@@ -58,7 +58,7 @@ int main()
 
     motorDriver.init();
 
-    //Initialize I2C port at 400 kHz
+    //Initialize I2C port at 1MHz
     i2c_init(i2c, 1000000);
 
     // Initialize I2C pins

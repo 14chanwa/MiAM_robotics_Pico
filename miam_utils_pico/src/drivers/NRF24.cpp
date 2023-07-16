@@ -1,4 +1,4 @@
-#include "NRF24.h"
+#include "drivers/NRF24.h"
 #include "hardware/spi.h"
 #include "hardware/gpio.h"
 #include "pico/stdlib.h"
